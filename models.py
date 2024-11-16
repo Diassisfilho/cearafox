@@ -1,15 +1,16 @@
-import glfw
 import glm
 import numpy as np
 from OpenGL.GL import *
 from PIL import Image
 
 class Model:
-    def __init__(self, shader_program, vao, indices, texture_id=None):
+    def __init__(self, shader_program, vao, indices, material_faces, materials, textures):
         self.shader_program = shader_program
         self.vao = vao
         self.indices = indices
-        self.texture_id = texture_id
+        self.material_faces = material_faces
+        self.materials = materials
+        self.textures = textures
         self.model = glm.mat4(1.0)
 
     def draw_model(self):
@@ -19,26 +20,39 @@ class Model:
         model_loc = glGetUniformLocation(self.shader_program, "model")
         glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm.value_ptr(self.model))
 
-        # Bind texture if available
-        if self.texture_id:
-            glActiveTexture(GL_TEXTURE0)
-            glBindTexture(GL_TEXTURE_2D, self.texture_id)
-            glUniform1i(glGetUniformLocation(self.shader_program, "texture1"), 0)
-
-        # Bind VAO and draw
+        # Bind VAO
         glBindVertexArray(self.vao)
-        glDrawElements(GL_TRIANGLES, len(self.indices), GL_UNSIGNED_INT, None)
+
+        # Draw each face with the corresponding material and texture
+        start_index = 0
+        for material_name in self.materials:
+            if 'texture' in self.materials[material_name]:
+                texture_id = self.textures[material_name]
+                glActiveTexture(GL_TEXTURE0)
+                glBindTexture(GL_TEXTURE_2D, texture_id)
+                glUniform1i(glGetUniformLocation(self.shader_program, "texture1"), 0)
+
+            # Find the range of indices for the current material
+            material_indices = [i for i, m in enumerate(self.material_faces) if m == material_name]
+            if material_indices:
+                for i in range(len(material_indices)):
+                    start_index = material_indices[i] * 3
+                    end_index = start_index + 3
+                    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, ctypes.c_void_p(start_index * 4))
+
         glBindVertexArray(0)
 
         # Unbind texture
-        if self.texture_id:
-            glBindTexture(GL_TEXTURE_2D, 0)
+        glBindTexture(GL_TEXTURE_2D, 0)
 
 def load_obj(filename):
     vertices = []
     texcoords = []
     normals = []
     faces = []
+    material_faces = []
+
+    current_material = None
 
     with open(filename, 'r') as file:
         for line in file:
@@ -48,11 +62,14 @@ def load_obj(filename):
                 texcoords.append(list(map(float, line.strip().split()[1:])))
             elif line.startswith('vn '):
                 normals.append(list(map(float, line.strip().split()[1:])))
+            elif line.startswith('usemtl '):
+                current_material = line.strip().split()[1]
             elif line.startswith('f '):
                 face = []
                 for vertex in line.strip().split()[1:]:
                     face.append(list(map(int, vertex.split('/'))))
                 faces.append(face)
+                material_faces.append(current_material)
 
     vertex_data = []
     texcoord_data = []
@@ -69,7 +86,7 @@ def load_obj(filename):
             indices.append(index)
             index += 1
 
-    return np.array(vertex_data, dtype=np.float32), np.array(texcoord_data, dtype=np.float32), np.array(normal_data, dtype=np.float32), np.array(indices, dtype=np.uint32)
+    return np.array(vertex_data, dtype=np.float32), np.array(texcoord_data, dtype=np.float32), np.array(normal_data, dtype=np.float32), np.array(indices, dtype=np.uint32), material_faces
 
 def load_mtl(filename):
     materials = {}
@@ -101,16 +118,3 @@ def load_texture(filename):
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
     return texture_id
-
-def render_model(vertices, texcoords, normals, faces, materials):
-    glEnable(GL_TEXTURE_2D)
-    for face in faces:
-        glBegin(GL_TRIANGLES)
-        for vertex in face:
-            if len(vertex) > 1 and vertex[1] > 0:
-                glTexCoord2fv(texcoords[vertex[1] - 1])
-            if len(vertex) > 2 and vertex[2] > 0:
-                glNormal3fv(normals[vertex[2] - 1])
-            glVertex3fv(vertices[vertex[0] - 1])
-        glEnd()
-    glDisable(GL_TEXTURE_2D)

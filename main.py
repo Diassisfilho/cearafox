@@ -22,7 +22,7 @@ glfw.make_context_current(window)
 
 shader_program = shaders_setup('vertex_shader.glsl', 'fragment_shader.glsl')
 
-vertices, texcoords, normals, indices = load_obj('arwing.obj')
+vertices, texcoords, normals, indices, material_faces = load_obj('arwing.obj')
 
 materials = load_mtl('arwing.mtl')
 
@@ -36,7 +36,7 @@ print("Loaded textures:", textures)
 arwing_vao = setup_vao_vbo(vertices, texcoords, normals, indices)
 
 # Use the correct material name from the MTL file
-arwing_instance = Model(shader_program, arwing_vao, indices, textures.get('ArwingMaterial'))
+arwing_instance = Model(shader_program, arwing_vao, indices, material_faces, materials, textures)
 
 # Enable depth testing
 glEnable(GL_DEPTH_TEST)
@@ -57,6 +57,7 @@ while not glfw.window_should_close(window):
     # Calculate rotation angle based on time
     rotation_angle = glfw.get_time() * glm.radians(45)  # Rotate 45 degrees per second
     arwing_instance.model = glm.rotate(glm.mat4(1.0), rotation_angle, glm.vec3(0, 1, 0))
+    # arwing_instance.model = glm.scale(arwing_instance.model, glm.vec3(0.05,0.05,0.05))
 
     # Draw Player
     arwing_instance.draw_model()
