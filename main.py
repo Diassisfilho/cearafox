@@ -30,8 +30,8 @@ arwing_model = setup_model(shader_program, 'arwing.obj', 'arwing.mtl')
 arwing_instance = Arwing(arwing_model)
 
 # Setup andross
-andross_instance = setup_model(shader_program, 'andross.obj', 'andross.mtl')
-andross_initial_state(andross_instance)
+andross_model = setup_model(shader_program, 'andross.obj', 'andross.mtl')
+andross_instance = Andross(andross_model)
 
 # Enable depth testing
 glEnable(GL_DEPTH_TEST)
@@ -51,17 +51,14 @@ while not glfw.window_should_close(window):
 
     lighting_setup(shader_program)
 
-    # Draw Arwing
-    arwing_instance.run_loop()
-
-    # Update camera to follow Arwing
-    camera_instance.update_view(arwing_instance.position)
-
     # Execute camera actions
     camera_instance.run_loop()
 
+    # Draw Arwing
+    arwing_instance.run_loop()
+
     # Draw Andross
-    andross_instance.draw_model()
+    andross_instance.run_loop()
 
     # Render text
     glUseProgram(0)  # Disable shader program to render text
@@ -69,6 +66,8 @@ while not glfw.window_should_close(window):
     text_renderer.render_text(arwing_pos_text, -0.95, 0.9, 0.5, (1.0, 1.0, 1.0))
     camera_pos_text = f"Camera {camera_instance.position.y:.2f}, {camera_instance.position.z:.2f}"
     text_renderer.render_text(camera_pos_text, 0.10, 0.9, 0.5, (1.0, 1.0, 1.0))
+    andross_pos_text = f"Andross {andross_instance.position.y:.2f}, {andross_instance.position.z:.2f}"
+    text_renderer.render_text(andross_pos_text, -0.10, -0.9, 0.5, (1.0, 1.0, 1.0))
 
     # Swap buffers and poll events
     glfw.swap_buffers(window)

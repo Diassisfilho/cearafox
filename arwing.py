@@ -16,6 +16,5 @@ class Arwing:
         self.model_instance.model = glm.rotate(self.model_instance.model, glm.radians(10), glm.vec3(1, 0, 0))
 
     def run_loop(self):
-        self.position.z += glfw.get_time() * self.velocity
         model_position(self.model_instance, self.position)
         self.model_instance.draw_model()
