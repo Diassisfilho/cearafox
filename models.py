@@ -1,7 +1,10 @@
+import glfw
 import glm
 import numpy as np
 from OpenGL.GL import *
 from PIL import Image
+
+from utils import setup_vao_vbo
 
 class Model:
     def __init__(self, shader_program, vao, indices, material_faces, materials, textures):
@@ -86,7 +89,15 @@ def load_obj(filename):
             indices.append(index)
             index += 1
 
-    return np.array(vertex_data, dtype=np.float32), np.array(texcoord_data, dtype=np.float32), np.array(normal_data, dtype=np.float32), np.array(indices, dtype=np.uint32), material_faces
+    obj_data = {
+        'vertex_data': np.array(vertex_data, dtype=np.float32),
+        'texcoord_data': np.array(texcoord_data, dtype=np.float32),
+        'normal_data': np.array(normal_data, dtype=np.float32),
+        'indices': np.array(indices, dtype=np.uint32),
+        'material_faces': material_faces
+    }
+
+    return obj_data
 
 def load_mtl(filename):
     materials = {}
@@ -118,3 +129,36 @@ def load_texture(filename):
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
     return texture_id
+
+def setup_model(shader_program, obj_path, mtl_path):
+    model_obj_data = load_obj(obj_path)
+
+    model_materials = load_mtl(mtl_path)
+
+    model_textures = {}
+    for material_name, material in model_materials.items():
+        print(f"Loading texture for material: {material_name}")
+        model_textures[material_name] = load_texture(material['texture'])
+
+    print("Loaded textures:", model_textures)
+
+    model_vao = setup_vao_vbo(
+        model_obj_data['vertex_data'],
+        model_obj_data['texcoord_data'],
+        model_obj_data['normal_data'],
+        model_obj_data['indices']
+    )
+
+    # Use the correct material name from the MTL file
+    return Model(
+        shader_program,
+        model_vao,
+        model_obj_data['indices'],
+        model_obj_data['material_faces'],
+        model_materials,
+        model_textures
+    )
+
+def rotate_instance_by_time(instance):
+    rotation_angle = glfw.get_time() * glm.radians(45)  # Rotate 45 degrees per second
+    instance.model = glm.rotate(glm.mat4(1.0), rotation_angle, glm.vec3(0, 1, 0))
