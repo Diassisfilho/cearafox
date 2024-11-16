@@ -7,6 +7,7 @@ from shaders import shaders_setup
 from models import setup_model
 from visualization import lighting_setup
 from camera import Camera
+from text_renderer import TextRenderer
 
 # Initialize GLFW
 if not glfw.init():
@@ -35,6 +36,9 @@ andross_initial_state(andross_instance)
 # Enable depth testing
 glEnable(GL_DEPTH_TEST)
 
+# Setup text renderer
+text_renderer = TextRenderer("star-fox-starwing.ttf", 24)
+
 # Render loop
 while not glfw.window_should_close(window):
     # Clear screen
@@ -47,14 +51,24 @@ while not glfw.window_should_close(window):
 
     lighting_setup(shader_program)
 
-    # Excecute camera actions
-    camera_instance.run_loop()
-
     # Draw Arwing
     arwing_instance.run_loop()
 
+    # Update camera to follow Arwing
+    camera_instance.update_view(arwing_instance.position)
+
+    # Execute camera actions
+    camera_instance.run_loop()
+
     # Draw Andross
     andross_instance.draw_model()
+
+    # Render text
+    glUseProgram(0)  # Disable shader program to render text
+    arwing_pos_text = f"Arwing {arwing_instance.position.y:.2f}, {arwing_instance.position.z:.2f}"
+    text_renderer.render_text(arwing_pos_text, -0.95, 0.9, 0.5, (1.0, 1.0, 1.0))
+    camera_pos_text = f"Camera {camera_instance.position.y:.2f}, {camera_instance.position.z:.2f}"
+    text_renderer.render_text(camera_pos_text, 0.10, 0.9, 0.5, (1.0, 1.0, 1.0))
 
     # Swap buffers and poll events
     glfw.swap_buffers(window)

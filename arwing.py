@@ -5,7 +5,7 @@ from models import model_position
 class Arwing:
     def __init__(self, model_instance):
         self.model_instance = model_instance
-        self.velocity = 0.01
+        self.velocity = 0.001
         self.position = glm.vec3(0.0, 0.0, 0.0)
         self.initial_state()
     
