@@ -1,11 +1,12 @@
 import glfw
 from OpenGL.GL import *
 
-from arwing import *
+from arwing import Arwing
 from andross import *
 from shaders import shaders_setup
 from models import setup_model
-from visualization import camera_setup, lighting_setup
+from visualization import lighting_setup
+from camera import Camera
 
 # Initialize GLFW
 if not glfw.init():
@@ -20,11 +21,14 @@ glfw.make_context_current(window)
 
 shader_program = shaders_setup('vertex_shader.glsl', 'fragment_shader.glsl')
 
+# Setup camera
+camera_instance = Camera(shader_program)
+
 # Setup arwing
 arwing_model = setup_model(shader_program, 'arwing.obj', 'arwing.mtl')
 arwing_instance = Arwing(arwing_model)
 
-# Setup arwing
+# Setup andross
 andross_instance = setup_model(shader_program, 'andross.obj', 'andross.mtl')
 andross_initial_state(andross_instance)
 
@@ -41,8 +45,10 @@ while not glfw.window_should_close(window):
     # Use shader program
     glUseProgram(shader_program)
 
-    camera_setup(shader_program)
     lighting_setup(shader_program)
+
+    # Excecute camera actions
+    camera_instance.run_loop()
 
     # Draw Arwing
     arwing_instance.run_loop()
