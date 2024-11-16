@@ -1,9 +1,9 @@
 import glfw
 from OpenGL.GL import *
 
-from airwing import arwing_position
+from andross import andross_initial_state
 from shaders import shaders_setup
-from models import setup_model, rotate_instance_by_time
+from models import model_position, setup_model, rotate_instance_by_time
 from visualization import camera_setup, lighting_setup
 
 # Initialize GLFW
@@ -22,6 +22,10 @@ shader_program = shaders_setup('vertex_shader.glsl', 'fragment_shader.glsl')
 # Setup arwing
 arwing_instance = setup_model(shader_program, 'arwing.obj', 'arwing.mtl')
 # arwing_position(arwing_instance)
+
+# Setup arwing
+andross_instance = setup_model(shader_program, 'andross.obj', 'andross.mtl')
+andross_initial_state(andross_instance)
 
 # Enable depth testing
 glEnable(GL_DEPTH_TEST)
@@ -42,6 +46,9 @@ while not glfw.window_should_close(window):
     # Draw Arwing
     rotate_instance_by_time(arwing_instance)
     arwing_instance.draw_model()
+
+    # Draw Andross
+    andross_instance.draw_model()
 
     # Swap buffers and poll events
     glfw.swap_buffers(window)
