@@ -70,7 +70,12 @@ def load_obj(filename):
             elif line.startswith('f '):
                 face = []
                 for vertex in line.strip().split()[1:]:
-                    face.append(list(map(int, vertex.split('/'))))
+                    # Handle both Blender and SketchUp face formats
+                    vertex_indices = vertex.split('/')
+                    vertex_index = int(vertex_indices[0])
+                    texcoord_index = int(vertex_indices[1]) if len(vertex_indices) > 1 and vertex_indices[1] else 0
+                    normal_index = int(vertex_indices[2]) if len(vertex_indices) > 2 and vertex_indices[2] else 0
+                    face.append((vertex_index, texcoord_index, normal_index))
                 faces.append(face)
                 material_faces.append(current_material)
 
@@ -84,8 +89,14 @@ def load_obj(filename):
         for vertex in face:
             vertex_index, texcoord_index, normal_index = vertex
             vertex_data.extend(vertices[vertex_index - 1])
-            texcoord_data.extend(texcoords[texcoord_index - 1])
-            normal_data.extend(normals[normal_index - 1])
+            if texcoord_index > 0:
+                texcoord_data.extend(texcoords[texcoord_index - 1])
+            else:
+                texcoord_data.extend([0.0, 0.0])
+            if normal_index > 0:
+                normal_data.extend(normals[normal_index - 1])
+            else:
+                normal_data.extend([0.0, 0.0, 0.0])
             indices.append(index)
             index += 1
 
@@ -110,6 +121,12 @@ def load_mtl(filename):
                 materials[current_material] = {}
             elif line.startswith('map_Kd '):
                 materials[current_material]['texture'] = line.strip().split()[1]
+            elif line.startswith('Ka '):
+                materials[current_material]['Ka'] = list(map(float, line.strip().split()[1:]))
+            elif line.startswith('Kd '):
+                materials[current_material]['Kd'] = list(map(float, line.strip().split()[1:]))
+            elif line.startswith('Ks '):
+                materials[current_material]['Ks'] = list(map(float, line.strip().split()[1:]))
 
     return materials
 
@@ -137,8 +154,9 @@ def setup_model(shader_program, obj_path, mtl_path):
 
     model_textures = {}
     for material_name, material in model_materials.items():
-        print(f"Loading texture for material: {material_name}")
-        model_textures[material_name] = load_texture(material['texture'])
+        if 'texture' in material:
+            print(f"Loading texture for material: {material_name}")
+            model_textures[material_name] = load_texture(material['texture'])
 
     print("Loaded textures:", model_textures)
 
@@ -149,7 +167,6 @@ def setup_model(shader_program, obj_path, mtl_path):
         model_obj_data['indices']
     )
 
-    # Use the correct material name from the MTL file
     return Model(
         shader_program,
         model_vao,
