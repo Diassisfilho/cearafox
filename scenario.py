@@ -11,8 +11,8 @@ class Castle:
         self.initial_state()
     
     def initial_state(self):
+        self.model_instance.model = glm.rotate(self.model_instance.model, glm.radians(-90), glm.vec3(0, 1, 1))
         model_position(self.model_instance, glm.vec3(0.0,0,3))
-        self.model_instance.model = glm.rotate(self.model_instance.model, glm.radians(180), glm.vec3(0, 1, 0))
 
     def run_loop(self):
         model_position(self.model_instance, self.position)
@@ -55,7 +55,7 @@ class Skybox:
 
         return texture_id
 
-    def draw_skybox(self, camera_instance):
+    def draw(self, camera_instance):
         glDepthFunc(GL_LEQUAL)
         glUseProgram(self.shader_program)
         view = glm.mat4(glm.mat3(camera_instance.view))  # Remove translation from the view matrix

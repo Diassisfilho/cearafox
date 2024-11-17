@@ -15,10 +15,24 @@ if not glfw.init():
     exit()
 
 # Create a windowed mode window and its OpenGL context
-window = glfw.create_window(800, 600, "CearaFox", None, None)
+width, height = 800, 600
+window = glfw.create_window(width, height, "CearaFox", None, None)
 if not window:
     glfw.terminate()
     exit()
+
+# Get the primary monitor's video mode
+monitor = glfw.get_primary_monitor()
+video_mode = glfw.get_video_mode(monitor)
+
+# Calculate the center position
+center_x = (video_mode.size.width - width) // 2
+center_y = (video_mode.size.height - height) // 2
+
+# Set the window position
+glfw.set_window_pos(window, center_x, center_y)
+
+# Make the window's context current
 glfw.make_context_current(window)
 
 shader_program = shaders_setup('vertex_shader.glsl', 'fragment_shader.glsl')
@@ -36,10 +50,6 @@ glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 # Setup arwing
 arwing_model = setup_model(shader_program, 'arwing.obj', 'arwing.mtl')
 arwing_instance = Arwing(arwing_model)
-
-# Setup Andross
-andross_model = setup_model(shader_program, 'andross.obj', 'andross.mtl')
-andross_instance = Andross(andross_model)
 
 # Setup cenario
 scenario_model = setup_model(shader_program, './PeachsCastleExterior/Peaches Castle.obj', './PeachsCastleExterior/Peaches Castle.mtl')
@@ -72,19 +82,21 @@ while not glfw.window_should_close(window):
     # Draw Scenario 
     scenario_instance.run_loop()
 
+    # Update Arwing position to follow the camera
+    arwing_instance.update_position(camera_instance.position, camera_instance.front, 4.0)
+
     # Draw arwing
     arwing_instance.run_loop()
 
-    # Draw andross
-    andross_instance.run_loop()
-
     # Render skybox
-    skybox_instance.draw_skybox(camera_instance)
+    skybox_instance.draw(camera_instance)
 
     # Render text
     glUseProgram(0)  # Disable shader program to render text
     camera_pos_text = f"Camera {camera_instance.position.x:.2f},{camera_instance.position.y:.2f},{camera_instance.position.z:.2f}"
     text_renderer.render_text(camera_pos_text, 0, 0.9, 0.5, (1.0, 1.0, 1.0))
+    arwing_pos_text = f"Arwing {arwing_instance.position.x:.2f},{arwing_instance.position.y:.2f},{arwing_instance.position.z:.2f}"
+    text_renderer.render_text(arwing_pos_text, 0, -0.9, 0.5, (1.0, 1.0, 1.0))
 
     # Swap buffers and poll events
     glfw.swap_buffers(window)

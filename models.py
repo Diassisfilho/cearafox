@@ -180,6 +180,5 @@ def rotate_instance_by_time(instance):
     rotation_angle = glfw.get_time() * glm.radians(45)  # Rotate 45 degrees per second
     instance.model = glm.rotate(glm.mat4(1.0), rotation_angle, glm.vec3(0, 1, 0))
 
-def model_position(instance, position=glm.vec3(0,0,-10)):
-    # Translate the model along the z-axis to make it distant from the camera
-    instance.model = glm.translate(instance.model, glm.vec3(position))
+def model_position(model_instance, position):
+    model_instance.model = glm.translate(glm.mat4(1.0), position)
