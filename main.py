@@ -1,11 +1,13 @@
 import glfw
 from OpenGL.GL import *
+import glm
 
 from arwing import Arwing
 from andross import Andross
-from scenario import Castle
+from scenario import Castle, load_skybox
 from shaders import shaders_setup
 from models import setup_model
+from utils import setup_skybox
 from visualization import lighting_setup
 from camera import Camera
 from text_renderer import TextRenderer
@@ -51,6 +53,23 @@ glEnable(GL_DEPTH_TEST)
 # Setup text renderer
 text_renderer = TextRenderer("star-fox-starwing.ttf", 24)
 
+# Load skybox textures
+skybox_faces = [
+    "Skybox/sky-right.jpg",
+    "Skybox/sky-left.jpg",
+    "Skybox/sky-top.jpg",
+    "Skybox/sky-bottom.jpg",
+    "Skybox/sky-front.jpg",
+    "Skybox/sky-back.jpg"
+]
+skybox_texture = load_skybox(skybox_faces)
+
+# Setup skybox VAO and VBO
+skybox_vao = setup_skybox()
+
+# Load skybox shader
+skybox_shader_program = shaders_setup('skybox_vertex_shader.glsl', 'skybox_fragment_shader.glsl')
+
 # Render loop
 while not glfw.window_should_close(window):
     # Clear screen
@@ -66,23 +85,26 @@ while not glfw.window_should_close(window):
     # Execute camera actions
     camera_instance.run_loop(window)
 
-    # Draw Arwing
-    # arwing_instance.run_loop()
-
-    # Draw Andross
-    # andross_instance.run_loop()
-
     # Draw Scenario 
     scenario_instance.run_loop()
 
+    # Render skybox
+    glDepthFunc(GL_LEQUAL)
+    glUseProgram(skybox_shader_program)
+    view = glm.mat4(glm.mat3(camera_instance.view))  # Remove translation from the view matrix
+    projection = camera_instance.projection
+    glUniformMatrix4fv(glGetUniformLocation(skybox_shader_program, "view"), 1, GL_FALSE, glm.value_ptr(view))
+    glUniformMatrix4fv(glGetUniformLocation(skybox_shader_program, "projection"), 1, GL_FALSE, glm.value_ptr(projection))
+    glBindVertexArray(skybox_vao)
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_texture)
+    glDrawArrays(GL_TRIANGLES, 0, 36)
+    glBindVertexArray(0)
+    glDepthFunc(GL_LESS)
+
     # Render text
     glUseProgram(0)  # Disable shader program to render text
-    # arwing_pos_text = f"Arwing {arwing_instance.position.y:.2f}, {arwing_instance.position.z:.2f}"
-    # text_renderer.render_text(arwing_pos_text, -0.95, 0.9, 0.5, (1.0, 1.0, 1.0))
     camera_pos_text = f"Camera {camera_instance.position.x:.2f},{camera_instance.position.y:.2f},{camera_instance.position.z:.2f}"
     text_renderer.render_text(camera_pos_text, 0, 0.9, 0.5, (1.0, 1.0, 1.0))
-    # andross_pos_text = f"Andross {andross_instance.position.y:.2f}, {andross_instance.position.z:.2f}"
-    # text_renderer.render_text(andross_pos_text, -0.10, -0.9, 0.5, (1.0, 1.0, 1.0))
 
     # Swap buffers and poll events
     glfw.swap_buffers(window)
@@ -90,6 +112,7 @@ while not glfw.window_should_close(window):
 
 # Cleanup resources
 glDeleteProgram(shader_program)
+glDeleteProgram(skybox_shader_program)
 
 # Terminate GLFW
 glfw.terminate()
