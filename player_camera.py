@@ -12,7 +12,7 @@ class PlayerCamera:
         self.up = glm.vec3(0, 1, 0)
         self.right = glm.vec3(1, 0, 0)
         self.base_rotation_speed = glm.radians(1.0)  # Base rotation speed
-        self.base_movement_speed = 0.001  # Base movement speed
+        self.base_movement_speed = 0.1  # Base movement speed
         self.movement_speed = self.base_movement_speed
         self.rotation_speed = self.base_rotation_speed
         self.key_a_pressed = False

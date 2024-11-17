@@ -16,6 +16,8 @@ class Arwing:
     def update_position_and_rotation(self, player_camera, delta_time):
         # Update position to follow the camera
         self.position = player_camera.position + player_camera.front * self.camera_distance + glm.vec3(0, -1, 0)
+        self.rotation = player_camera.rotation
+        self.update_model_matrix()
 
         # Get key inputs and speeds from player camera
         key_a_pressed = player_camera.key_a_pressed
@@ -58,7 +60,8 @@ class Arwing:
         self.model_instance.model = glm.mat4(1.0)
         self.model_instance.model = glm.translate(self.model_instance.model, self.position)
         # Rotate to face forward along the Z-axis
-        self.model_instance.model = glm.rotate(self.model_instance.model, glm.radians(180), glm.vec3(0, 1, 0))
+        self.model_instance.model = glm.rotate(self.model_instance.model, self.rotation.x, glm.vec3(1, 0, 0))
+        self.model_instance.model = glm.rotate(self.model_instance.model, - self.rotation.y + glm.radians(90), glm.vec3(0, 1, 0))
         # Apply roll rotation around Z-axis
         self.model_instance.model = glm.rotate(self.model_instance.model, self.roll_angle, glm.vec3(0, 0, 1))
         # Scale the model
