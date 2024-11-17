@@ -37,7 +37,7 @@ def setup_vao_vbo(vertices, texcoords, normals, indices):
 
     return vao
 
-def setup_skybox():
+def setup_vao_vbo_skybox():
     skybox_vertices = [
         # positions          
         -1.0,  1.0, -1.0,
