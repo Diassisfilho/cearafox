@@ -7,13 +7,14 @@ class Camera:
         self.shader_program = shader_program
         self.position = glm.vec3(0, 3, 8)
         self.projection = glm.perspective(glm.radians(45), 800/600, 0.1, 1000.0)
-        self.rotation = glm.vec3(0, 0, 0)
-        self.front = glm.vec3(0, 0, -1)
+        self.rotation = glm.vec3(0, glm.radians(-90), 0)  # Looking towards positive Z-axis
+        self.front = glm.vec3(0, 0, 1)  # Positive Z-axis direction
         self.up = glm.vec3(0, 1, 0)
         self.right = glm.vec3(1, 0, 0)
         self.last_x = 400
         self.last_y = 300
         self.first_mouse = True
+        self.update_view_matrix()  # Initialize the view matrix
 
     def process_input(self, window):
         movement_speed = 0.1

@@ -33,6 +33,14 @@ def mouse_callback(window, xpos, ypos):
 glfw.set_cursor_pos_callback(window, mouse_callback)
 glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
+# Setup arwing
+arwing_model = setup_model(shader_program, 'arwing.obj', 'arwing.mtl')
+arwing_instance = Arwing(arwing_model)
+
+# Setup Andross
+andross_model = setup_model(shader_program, 'andross.obj', 'andross.mtl')
+andross_instance = Andross(andross_model)
+
 # Setup cenario
 scenario_model = setup_model(shader_program, './PeachsCastleExterior/Peaches Castle.obj', './PeachsCastleExterior/Peaches Castle.mtl')
 scenario_instance = Castle(scenario_model)
@@ -63,6 +71,12 @@ while not glfw.window_should_close(window):
 
     # Draw Scenario 
     scenario_instance.run_loop()
+
+    # Draw arwing
+    arwing_instance.run_loop()
+
+    # Draw andross
+    andross_instance.run_loop()
 
     # Render skybox
     skybox_instance.draw_skybox(camera_instance)
