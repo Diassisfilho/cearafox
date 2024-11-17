@@ -3,7 +3,7 @@ from OpenGL.GL import *
 
 from arwing import Arwing
 from andross import Andross
-from scenario import Castle, Skybox
+from scenario import Castle, GoldRing, Skybox
 from shaders import shaders_setup
 from models import setup_model
 from visualization import lighting_setup
@@ -44,9 +44,13 @@ player_camera = PlayerCamera(shader_program)
 arwing_model = setup_model(shader_program, 'arwing.obj', 'arwing.mtl')
 arwing_instance = Arwing(arwing_model)
 
-# Setup cenario
+# Setup scenario
 scenario_model = setup_model(shader_program, './PeachsCastleExterior/Peaches Castle.obj', './PeachsCastleExterior/Peaches Castle.mtl')
 scenario_instance = Castle(scenario_model)
+
+# Setup Gold Ring
+gold_ring_model = setup_model(shader_program, 'Gold Ring.obj', 'Gold Ring.mtl')
+gold_ring_instance = GoldRing(gold_ring_model)
 
 # Setup skybox
 skybox_instance = Skybox("Skybox")
@@ -76,10 +80,13 @@ while not glfw.window_should_close(window):
     scenario_instance.run_loop()
 
     # Update Arwing position and rotation to follow the camera
-    arwing_instance.update_position_and_rotation(player_camera.position, player_camera.front, player_camera.rotation, 4.0)
+    arwing_instance.update_position_and_rotation(player_camera.position, player_camera.front, player_camera.rotation)
 
     # Draw arwing
     arwing_instance.run_loop()
+
+    # Draw Gold Ring
+    gold_ring_instance.run_loop()
 
     # Render skybox
     skybox_instance.draw(player_camera)

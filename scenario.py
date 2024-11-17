@@ -4,18 +4,32 @@ from OpenGL.GL import *
 from PIL import Image
 from shaders import shaders_setup
 from utils import setup_vao_vbo_skybox
+
 class Castle:
     def __init__(self, model_instance):
         self.model_instance = model_instance
-        self.position = glm.vec3(0.0,0.0,0.0)
+        self.position = glm.vec3(0.0, -10, -40)
         self.initial_state()
     
     def initial_state(self):
-        self.model_instance.model = glm.rotate(self.model_instance.model, glm.radians(-90), glm.vec3(0, 1, 1))
-        model_position(self.model_instance, glm.vec3(0.0,0,3))
+        self.model_instance.model = glm.mat4(1.0)
+        self.model_instance.model = glm.translate(self.model_instance.model, self.position)
+        self.model_instance.model = glm.scale(self.model_instance.model, glm.vec3(10,10,10))
+        self.model_instance.model = glm.rotate(self.model_instance.model, glm.radians(180), glm.vec3(0, 1, 0))
 
     def run_loop(self):
-        model_position(self.model_instance, self.position)
+        self.model_instance.draw_model()
+class GoldRing:
+    def __init__(self, model_instance):
+        self.model_instance = model_instance
+        self.position = glm.vec3(0.0, 0.0, -20.0)
+        self.initial_state()
+    
+    def initial_state(self):
+        self.model_instance.model = glm.mat4(1.0)
+        self.model_instance.model = glm.translate(self.model_instance.model, self.position)
+
+    def run_loop(self):
         self.model_instance.draw_model()
 
 class Skybox:

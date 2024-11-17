@@ -5,7 +5,7 @@ from OpenGL.GL import *
 class PlayerCamera:
     def __init__(self, shader_program):
         self.shader_program = shader_program
-        self.position = glm.vec3(0, 3, 10)
+        self.position = glm.vec3(0, 0, 0)
         self.projection = glm.perspective(glm.radians(45), 800/600, 0.1, 1000.0)
         self.rotation = glm.vec3(0, glm.radians(-90), 0)  # Looking towards positive Z-axis
         self.front = glm.vec3(0, 0, 1)  # Positive Z-axis direction
@@ -14,7 +14,7 @@ class PlayerCamera:
         self.update_view_matrix()  # Initialize the view matrix
 
     def process_input(self, window):
-        rotation_speed = glm.radians(1.0)
+        rotation_speed = glm.radians(1.2)
         movement_speed = 0.1
 
         if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
