@@ -7,7 +7,7 @@ from scenario import Castle, Skybox
 from shaders import shaders_setup
 from models import setup_model
 from visualization import lighting_setup
-from camera import Camera
+from player_camera import PlayerCamera
 from text_renderer import TextRenderer
 
 # Initialize GLFW
@@ -37,12 +37,12 @@ glfw.make_context_current(window)
 
 shader_program = shaders_setup('vertex_shader.glsl', 'fragment_shader.glsl')
 
-# Setup camera
-camera_instance = Camera(shader_program)
+# Setup cameras
+player_camera = PlayerCamera(shader_program)
 
 # Setup mouse callback
 def mouse_callback(window, xpos, ypos):
-    camera_instance.process_mouse_movement(xpos, ypos)
+    player_camera.process_mouse_movement(xpos, ypos)
 
 glfw.set_cursor_pos_callback(window, mouse_callback)
 glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
@@ -77,23 +77,23 @@ while not glfw.window_should_close(window):
     lighting_setup(shader_program)
 
     # Execute camera actions
-    camera_instance.run_loop(window)
+    player_camera.run_loop(window)
 
     # Draw Scenario 
     scenario_instance.run_loop()
 
     # Update Arwing position to follow the camera
-    arwing_instance.update_position(camera_instance.position, camera_instance.front, 4.0)
+    arwing_instance.update_position(player_camera.position, player_camera.front, 4.0)
 
     # Draw arwing
     arwing_instance.run_loop()
 
     # Render skybox
-    skybox_instance.draw(camera_instance)
+    skybox_instance.draw(player_camera)
 
     # Render text
     glUseProgram(0)  # Disable shader program to render text
-    camera_pos_text = f"Camera {camera_instance.position.x:.2f},{camera_instance.position.y:.2f},{camera_instance.position.z:.2f}"
+    camera_pos_text = f"Camera {player_camera.position.x:.2f},{player_camera.position.y:.2f},{player_camera.position.z:.2f}"
     text_renderer.render_text(camera_pos_text, 0, 0.9, 0.5, (1.0, 1.0, 1.0))
     arwing_pos_text = f"Arwing {arwing_instance.position.x:.2f},{arwing_instance.position.y:.2f},{arwing_instance.position.z:.2f}"
     text_renderer.render_text(arwing_pos_text, 0, -0.9, 0.5, (1.0, 1.0, 1.0))

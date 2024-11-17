@@ -2,7 +2,7 @@ import glm
 import glfw
 from OpenGL.GL import *
 
-class Camera:
+class PlayerCamera:
     def __init__(self, shader_program):
         self.shader_program = shader_program
         self.position = glm.vec3(0, 3, 10)
