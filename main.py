@@ -1,5 +1,6 @@
 import glfw
 from OpenGL.GL import *
+import glm
 
 from arwing import Arwing
 from andross import Andross
@@ -48,15 +49,26 @@ arwing_instance = Arwing(arwing_model)
 scenario_model = setup_model(shader_program, './PeachsCastleExterior/Peaches Castle.obj', './PeachsCastleExterior/Peaches Castle.mtl')
 scenario_instance = Castle(scenario_model)
 
-# Setup Gold Ring
-gold_ring_model = setup_model(shader_program, 'Gold Ring.obj', 'Gold Ring.mtl')
-gold_ring_instance = GoldRing(gold_ring_model)
+# Setup Gold Rings
+gold_ring_1_model = setup_model(shader_program, 'Gold Ring.obj', 'Gold Ring.mtl')
+gold_ring_1_instance = GoldRing(gold_ring_1_model)
+
+gold_ring_2_model = setup_model(shader_program, 'Gold Ring.obj', 'Gold Ring.mtl')
+gold_ring_2_instance = GoldRing(gold_ring_2_model)
+gold_ring_2_instance.position =+ glm.vec3(0,0,-20)
+
+gold_ring_3_model = setup_model(shader_program, 'Gold Ring.obj', 'Gold Ring.mtl')
+gold_ring_3_instance = GoldRing(gold_ring_3_model)
+gold_ring_3_instance.position =+ glm.vec3(0,0,-30)
 
 # Setup skybox
 skybox_instance = Skybox("Skybox")
 
 # Setup text renderer
 text_renderer = TextRenderer("star-fox-starwing.ttf", 24)
+
+# Gameplay logic variables
+passed_rings_count = 0
 
 # Enable depth testing
 glEnable(GL_DEPTH_TEST)
@@ -86,7 +98,17 @@ while not glfw.window_should_close(window):
     arwing_instance.run_loop()
 
     # Draw Gold Ring
-    gold_ring_instance.run_loop()
+    gold_ring_1_instance.run_loop()
+    gold_ring_2_instance.run_loop()
+    gold_ring_3_instance.run_loop()
+
+    # Check for collision with the Gold Ring
+    if gold_ring_1_instance.check_collision(arwing_instance.position):
+        passed_rings_count += 1
+    if gold_ring_2_instance.check_collision(arwing_instance.position):
+        passed_rings_count += 1
+    if gold_ring_3_instance.check_collision(arwing_instance.position):
+        passed_rings_count += 1
 
     # Render skybox
     skybox_instance.draw(player_camera)
@@ -97,6 +119,7 @@ while not glfw.window_should_close(window):
     text_renderer.render_text(camera_pos_text, 0, 0.9, 0.5, (1.0, 1.0, 1.0))
     arwing_pos_text = f"Arwing {arwing_instance.position.x:.2f},{arwing_instance.position.y:.2f},{arwing_instance.position.z:.2f}"
     text_renderer.render_text(arwing_pos_text, 0, -0.9, 0.5, (1.0, 1.0, 1.0))
+    text_renderer.render_text(f'Rings {passed_rings_count}', -0.95, 0.9, 0.5, (1.0, 1.0, 1.0))
 
     # Swap buffers and poll events
     glfw.swap_buffers(window)

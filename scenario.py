@@ -19,18 +19,42 @@ class Castle:
 
     def run_loop(self):
         self.model_instance.draw_model()
+
 class GoldRing:
     def __init__(self, model_instance):
         self.model_instance = model_instance
-        self.position = glm.vec3(0.0, 0.0, -20.0)
+        self.position = glm.vec3(0.0, 0.0, -10.0)
+        self.rotation_angle = 0.0  # Initialize rotation angle
+        self.was_crossed = False
+        self.collision_radius = 2.0  # Adjust based on the ring's size
         self.initial_state()
     
     def initial_state(self):
         self.model_instance.model = glm.mat4(1.0)
         self.model_instance.model = glm.translate(self.model_instance.model, self.position)
-
+    
     def run_loop(self):
+        # Increment the rotation angle
+        self.rotation_angle += glm.radians(1)  # Adjust the rotation speed as needed
+
+        # Reset the model matrix
+        self.model_instance.model = glm.mat4(1.0)
+
+        # Apply transformations
+        self.model_instance.model = glm.translate(self.model_instance.model, self.position)
+        self.model_instance.model = glm.rotate(self.model_instance.model, self.rotation_angle, glm.vec3(0, 0, 1))  # Rotate around Z-axis
+
+        # Draw the model
         self.model_instance.draw_model()
+    
+    def check_collision(self, arwing_position):
+        if not self.was_crossed:
+            # Calculate the distance between the Arwing and the Gold Ring
+            distance = glm.distance(self.position, arwing_position)
+            if distance < self.collision_radius:
+                self.was_crossed = True
+                return True
+        return False
 
 class Skybox:
     def __init__(self, textures_folder):
