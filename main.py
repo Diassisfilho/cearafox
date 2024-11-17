@@ -57,7 +57,7 @@ while not glfw.window_should_close(window):
     lighting_setup(shader_program)
 
     # Execute camera actions
-    camera_instance.run_loop()
+    camera_instance.run_loop(window)
 
     # Draw Arwing
     # arwing_instance.run_loop()
