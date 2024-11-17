@@ -40,13 +40,6 @@ shader_program = shaders_setup('vertex_shader.glsl', 'fragment_shader.glsl')
 # Setup cameras
 player_camera = PlayerCamera(shader_program)
 
-# Setup mouse callback
-def mouse_callback(window, xpos, ypos):
-    player_camera.process_mouse_movement(xpos, ypos)
-
-glfw.set_cursor_pos_callback(window, mouse_callback)
-glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
-
 # Setup arwing
 arwing_model = setup_model(shader_program, 'arwing.obj', 'arwing.mtl')
 arwing_instance = Arwing(arwing_model)
@@ -82,8 +75,8 @@ while not glfw.window_should_close(window):
     # Draw Scenario 
     scenario_instance.run_loop()
 
-    # Update Arwing position to follow the camera
-    arwing_instance.update_position(player_camera.position, player_camera.front, 4.0)
+    # Update Arwing position and rotation to follow the camera
+    arwing_instance.update_position_and_rotation(player_camera.position, player_camera.front, player_camera.rotation, 4.0)
 
     # Draw arwing
     arwing_instance.run_loop()
