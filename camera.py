@@ -11,21 +11,48 @@ class Camera:
         self.front = glm.vec3(0, 0, -1)
         self.up = glm.vec3(0, 1, 0)
         self.right = glm.vec3(1, 0, 0)
+        self.last_x = 400
+        self.last_y = 300
+        self.first_mouse = True
 
     def process_input(self, window):
-        rotation_speed = 0.05
-        if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-            self.rotation.x -= rotation_speed
-        if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-            self.rotation.x += rotation_speed
-        if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-            self.rotation.y -= rotation_speed
-        if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-            self.rotation.y += rotation_speed
-        if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
-            self.rotation.z -= rotation_speed
-        if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
-            self.rotation.z += rotation_speed
+        movement_speed = 0.1
+        if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
+            self.position += self.front * movement_speed
+        if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
+            self.position -= self.front * movement_speed
+        if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
+            self.position -= self.right * movement_speed
+        if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
+            self.position += self.right * movement_speed
+        if glfw.get_key(window, glfw.KEY_SPACE) == glfw.PRESS:
+            self.position += self.up * movement_speed
+        if glfw.get_key(window, glfw.KEY_LEFT_SHIFT) == glfw.PRESS:
+            self.position -= self.up * movement_speed
+
+    def process_mouse_movement(self, xpos, ypos):
+        sensitivity = 0.001
+        if self.first_mouse:
+            self.last_x = xpos
+            self.last_y = ypos
+            self.first_mouse = False
+
+        xoffset = xpos - self.last_x
+        yoffset = self.last_y - ypos  # Reversed since y-coordinates go from bottom to top
+        self.last_x = xpos
+        self.last_y = ypos
+
+        xoffset *= sensitivity
+        yoffset *= sensitivity
+
+        self.rotation.y += xoffset
+        self.rotation.x += yoffset
+
+        # Constrain the pitch
+        if self.rotation.x > glm.radians(89.0):
+            self.rotation.x = glm.radians(89.0)
+        if self.rotation.x < glm.radians(-89.0):
+            self.rotation.x = glm.radians(-89.0)
 
     def update_view_matrix(self):
         # Calculate the new front vector

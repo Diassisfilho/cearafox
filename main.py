@@ -26,6 +26,13 @@ shader_program = shaders_setup('vertex_shader.glsl', 'fragment_shader.glsl')
 # Setup camera
 camera_instance = Camera(shader_program)
 
+# Setup mouse callback
+def mouse_callback(window, xpos, ypos):
+    camera_instance.process_mouse_movement(xpos, ypos)
+
+glfw.set_cursor_pos_callback(window, mouse_callback)
+glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
+
 # Setup cenario
 scenario_model = setup_model(shader_program, './PeachsCastleExterior/Peaches Castle.obj', './PeachsCastleExterior/Peaches Castle.mtl')
 scenario_instance = Castle(scenario_model)
@@ -72,8 +79,8 @@ while not glfw.window_should_close(window):
     glUseProgram(0)  # Disable shader program to render text
     # arwing_pos_text = f"Arwing {arwing_instance.position.y:.2f}, {arwing_instance.position.z:.2f}"
     # text_renderer.render_text(arwing_pos_text, -0.95, 0.9, 0.5, (1.0, 1.0, 1.0))
-    camera_pos_text = f"Camera {camera_instance.position.y:.2f}, {camera_instance.position.z:.2f}"
-    text_renderer.render_text(camera_pos_text, 0.10, 0.9, 0.5, (1.0, 1.0, 1.0))
+    camera_pos_text = f"Camera {camera_instance.position.x:.2f},{camera_instance.position.y:.2f},{camera_instance.position.z:.2f}"
+    text_renderer.render_text(camera_pos_text, 0, 0.9, 0.5, (1.0, 1.0, 1.0))
     # andross_pos_text = f"Andross {andross_instance.position.y:.2f}, {andross_instance.position.z:.2f}"
     # text_renderer.render_text(andross_pos_text, -0.10, -0.9, 0.5, (1.0, 1.0, 1.0))
 
