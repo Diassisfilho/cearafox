@@ -73,8 +73,16 @@ passed_rings_count = 0
 # Enable depth testing
 glEnable(GL_DEPTH_TEST)
 
+# Initialize time variables for delta_time calculation
+last_time = glfw.get_time()
+
 # Render loop
 while not glfw.window_should_close(window):
+    # Calculate delta_time
+    current_time = glfw.get_time()
+    delta_time = current_time - last_time
+    last_time = current_time
+
     # Clear screen
     glClearColor(0.0, 0.0, 0.0, 1.0)  # Black background
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -92,7 +100,7 @@ while not glfw.window_should_close(window):
     scenario_instance.run_loop()
 
     # Update Arwing position and rotation to follow the camera
-    arwing_instance.update_position_and_rotation(player_camera.position, player_camera.front, player_camera.rotation)
+    arwing_instance.update_position_and_rotation(player_camera, delta_time)
 
     # Draw arwing
     arwing_instance.run_loop()
