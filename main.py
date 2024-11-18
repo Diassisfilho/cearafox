@@ -81,6 +81,7 @@ glEnable(GL_DEPTH_TEST)
 
 # Gameplay logic variables
 crossed_rings_count = 0
+is_failed = False
 last_time = glfw.get_time()
 start_time = time.time()
 
@@ -106,6 +107,11 @@ while not glfw.window_should_close(window):
             for gold_ring_instance in gold_ring_instances:
                 gold_ring_instance.was_crossed = False
             
+            if crossed_rings_count < len(gold_ring_instances):
+                is_failed = True
+            else:
+                is_failed = False
+
             # Reset count
             crossed_rings_count = 0
 
@@ -152,6 +158,7 @@ while not glfw.window_should_close(window):
     # Render text
     normal_text_color = (1.0,1.0,1.0)
     fatal_text_color = (1.0,0.0,0.0)
+    win_text_color = (1.0, 1.0, 0.0)
 
     if (not DEV_MODE):
         glUseProgram(0)  # Disable shader program to render text
@@ -159,6 +166,10 @@ while not glfw.window_should_close(window):
         time_text_color = fatal_text_color if remain_time <= 10 else normal_text_color
         text_renderer.render_text(f'Rings {crossed_rings_count};{len(gold_ring_instances)}', -0.95, 0.9, 0.5, normal_text_color)
         text_renderer.render_text(f'Elapsed time {remain_time:.2f}', 0.2, 0.9, 0.5, time_text_color)
+        if(crossed_rings_count == len(gold_ring_instances)):
+            text_renderer.render_text("You win", -0.1, 0, 0.5, win_text_color)
+        if(is_failed and remain_time >= LIMIT_TIME*0.9):
+            text_renderer.render_text("You Fail", -0.15, 0, 0.5, win_text_color)
         text_renderer.render_text("WASD to Moviment", -0.95, -0.7, 0.5, normal_text_color)
         text_renderer.render_text("Space to Boost", -0.95, -0.8, 0.5, normal_text_color)
         text_renderer.render_text("Shift to Drift", -0.95, -0.9, 0.5, normal_text_color)

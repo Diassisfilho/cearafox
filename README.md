@@ -11,7 +11,6 @@ Pessoalmente foi um otima experiência ter desenvolvido este joguinho apesar do 
 
 ## Índice
 
-- Estrutura do Projeto
 - Instalação
   - Linux
   - Windows
@@ -21,51 +20,6 @@ Pessoalmente foi um otima experiência ter desenvolvido este joguinho apesar do 
   - Modo Desenvolvedor
   - Modo de Luz Difusa
 - Licença
-
-## Estrutura do Projeto
-
-O projeto está organizado nos seguintes diretórios e arquivos:
-
-### Arquivos e Diretórios Principais
-
-CearaFox/
-├── **pycache**/
-├── .gitignore
-├── assets/
-│ ├── Andross/
-│ ├── Arwing/
-│ ├── cow.obj
-│ ├── cube.obj
-│ ├── Gold/
-│ ├── PeachsCastleExterior/
-│ ├── Plane/
-│ ├── Silver/
-│ ├── Skybox/
-├── configs.py
-├── fonts/
-│ └── star-fox-starwing.ttf
-├── main.py
-├── readme.md
-├── requirements.txt
-├── shaders/
-│ ├── fragment_shader_difuse.glsl
-│ ├── fragment_shader_glob_ilum.glsl
-│ ├── skybox_fragment_shader.glsl
-│ ├── skybox_vertex_shader.glsl
-│ └── vertex_shader.glsl
-├── src/
-│ ├── **pycache**/
-│ ├── andross.py
-│ ├── arwing.py
-│ ├── dev_camera.py
-│ ├── ilumination.py
-│ ├── models.py
-│ ├── player_camera.py
-│ ├── scenario.py
-│ ├── shaders.py
-│ ├── text_renderer.py
-│ └── utils.py
-└── venv/
 
 ## Instalação
 

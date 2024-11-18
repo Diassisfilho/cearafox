@@ -131,7 +131,7 @@ def load_mtl(filename):
     return materials
 
 def load_texture(filename):
-    image = Image.open(f'assets\{filename}')
+    image = Image.open(f'assets/{filename}')
     image = image.transpose(Image.FLIP_TOP_BOTTOM)
     img_data = np.array(image, dtype=np.uint8)
 
