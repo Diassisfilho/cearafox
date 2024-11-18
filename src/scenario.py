@@ -1,10 +1,10 @@
 import random
 import glm
-from models import model_position
+from src.models import model_position
 from OpenGL.GL import *
 from PIL import Image
-from shaders import shaders_setup
-from utils import setup_vao_vbo_skybox
+from src.shaders import shaders_setup
+from src.utils import setup_vao_vbo_skybox
 
 class Castle:
     def __init__(self, model_instance):
@@ -86,7 +86,7 @@ class Skybox:
         self.vao = setup_vao_vbo_skybox()
 
         # Load skybox shader
-        self.shader_program = shaders_setup('skybox_vertex_shader.glsl', 'skybox_fragment_shader.glsl')
+        self.shader_program = shaders_setup('shaders/skybox_vertex_shader.glsl', 'shaders/skybox_fragment_shader.glsl')
     
     def load_skybox(self, faces):
         texture_id = glGenTextures(1)

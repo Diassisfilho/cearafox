@@ -1,5 +1,5 @@
 import glm
-from models import model_position
+from src.models import model_position
 
 class Arwing:
     def __init__(self, model_instance):

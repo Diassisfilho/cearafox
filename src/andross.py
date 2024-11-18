@@ -1,6 +1,6 @@
 import glm
 import glfw
-from models import model_position
+from src.models import model_position
 
 class Andross:
     def __init__(self, model_instance):

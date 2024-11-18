@@ -3,16 +3,16 @@ from OpenGL.GL import *
 import glm
 import time
 
-from arwing import Arwing
-from andross import Andross
-from scenario import Castle, GoldRing, Skybox
-from shaders import shaders_setup
-from models import setup_model
-from ilumination import glob_lighting_draw, difuse_lighting_draw
-from player_camera import PlayerCamera
-from dev_camera import DevCamera, setup_mouse_movimentation
-from text_renderer import TextRenderer
-from utils import gold_ring_positions, gold_ring_rotations
+from src.arwing import Arwing
+from src.andross import Andross
+from src.scenario import Castle, GoldRing, Skybox
+from src.shaders import shaders_setup
+from src.models import setup_model
+from src.ilumination import glob_lighting_draw, difuse_lighting_draw
+from src.player_camera import PlayerCamera
+from src.dev_camera import DevCamera, setup_mouse_movimentation
+from src.text_renderer import TextRenderer
+from src.utils import gold_ring_positions, gold_ring_rotations
 from configs import DEV_MODE, DIFUSE_LIGHT_MODE, LIMIT_TIME
 
 # Initialize GLFW
@@ -41,9 +41,9 @@ glfw.set_window_pos(window, center_x, center_y)
 glfw.make_context_current(window)
 
 # Setup shaders
-shader_program = shaders_setup('vertex_shader.glsl', 'fragment_shader_glob_ilum.glsl')
+shader_program = shaders_setup('shaders/vertex_shader.glsl', 'shaders/fragment_shader_glob_ilum.glsl')
 if(DIFUSE_LIGHT_MODE):
-    shader_program = shaders_setup('vertex_shader.glsl', 'fragment_shader_difuse.glsl')
+    shader_program = shaders_setup('shaders/vertex_shader.glsl', 'shaders/fragment_shader_difuse.glsl')
 
 # Setup camera
 camera_instance = PlayerCamera(shader_program)
@@ -52,18 +52,18 @@ if(DEV_MODE):
     setup_mouse_movimentation(camera_instance, window)
 
 # Setup arwing
-arwing_model = setup_model(shader_program, 'arwing.obj', 'arwing.mtl')
+arwing_model = setup_model(shader_program, 'assets/Arwing/arwing.obj', 'assets/Arwing/arwing.mtl')
 arwing_instance = Arwing(arwing_model)
 
 # Setup scenario
-scenario_model = setup_model(shader_program, './PeachsCastleExterior/Peaches Castle.obj', './PeachsCastleExterior/Peaches Castle.mtl')
+scenario_model = setup_model(shader_program, 'assets/PeachsCastleExterior/Peaches Castle.obj', 'assets/PeachsCastleExterior/Peaches Castle.mtl')
 scenario_instance = Castle(scenario_model)
 
 # Setup Gold Rings
 gold_ring_instances = [None for x in range(len(gold_ring_positions))]
 
 for index, instance in enumerate(gold_ring_instances):
-    gold_ring_model = setup_model(shader_program, 'Gold Ring.obj', 'Gold Ring.mtl')
+    gold_ring_model = setup_model(shader_program, 'assets/Gold/Gold Ring.obj', 'assets/Gold/Gold Ring.mtl')
     gold_ring_instances[index] = GoldRing(gold_ring_model)
     gold_ring_instances[index].update_position_and_rotation(
         glm.vec3(gold_ring_positions[index]),
@@ -71,10 +71,10 @@ for index, instance in enumerate(gold_ring_instances):
     )
 
 # Setup skybox
-skybox_instance = Skybox("Skybox")
+skybox_instance = Skybox("assets/Skybox")
 
 # Setup text renderer
-text_renderer = TextRenderer("star-fox-starwing.ttf", 24)
+text_renderer = TextRenderer("fonts/star-fox-starwing.ttf", 24)
 
 # Enable depth testing
 glEnable(GL_DEPTH_TEST)
