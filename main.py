@@ -1,6 +1,7 @@
 import glfw
 from OpenGL.GL import *
 import glm
+import time
 
 from arwing import Arwing
 from andross import Andross
@@ -11,6 +12,9 @@ from visualization import lighting_setup
 from player_camera import PlayerCamera
 from dev_camera import DevCamera, setup_mouse_movimentation
 from text_renderer import TextRenderer
+from utils import gold_ring_positions, gold_ring_rotations
+
+DEV_MODE = False
 
 # Initialize GLFW
 if not glfw.init():
@@ -40,8 +44,7 @@ glfw.make_context_current(window)
 shader_program = shaders_setup('vertex_shader.glsl', 'fragment_shader.glsl')
 
 # Setup cameras
-camera_instance = DevCamera(shader_program)
-setup_mouse_movimentation(camera_instance, window)
+camera_instance = PlayerCamera(shader_program)
 
 # Setup arwing
 arwing_model = setup_model(shader_program, 'arwing.obj', 'arwing.mtl')
@@ -52,37 +55,6 @@ scenario_model = setup_model(shader_program, './PeachsCastleExterior/Peaches Cas
 scenario_instance = Castle(scenario_model)
 
 # Setup Gold Rings
-gold_ring_positions = [
-    (0.00, 6.00, -14.00),
-    (-12.13, -10.68, 9.61),
-    (-35.60, -10.04, -1.27),
-    (-46.12, -9.34, -38.85),
-    (-68.33, -7.83, -14.50),
-    (-2.90, -11.90, -55.31),
-    (-2.90, -11.90, -45.31),
-    (28.38, -13.07, -57.73),
-    (39.85, -9.39, -76.39),
-    (43.15, -13.68, -40.28),
-    (-53.22, 2.48, -70.81),
-    (61.51, -11.87, 28.54),
-    (0.45, 70.05, -79.15),
-    ]
-
-gold_ring_rotations = [
-    (0.08, -0.49, 0.00),
-    (0.01, 1.33, 0.00),
-    (-0.014, 0.27, 0.00),
-    (-0.014, 0.27, 0.00),
-    (-0.014, 0.27, 0.00),
-    (-0.07, 0.11, 0.00),
-    (-0.07, 0.11, 0.00),
-    (-0.07, -6.44, 0.00),
-    (0.47, 4.71, 0.00),
-    (-0.03, -1.93, 0.00),
-    (-0.09, -1.43, 0.00),
-    (0.03, -8.07, 0.00),
-    (0.00, 1.58, 0.00)
-    ]
 gold_ring_instances = [None for x in range(len(gold_ring_positions))]
 
 for index, instance in enumerate(gold_ring_instances):
@@ -100,13 +72,15 @@ skybox_instance = Skybox("Skybox")
 text_renderer = TextRenderer("star-fox-starwing.ttf", 24)
 
 # Gameplay logic variables
-passed_rings_count = 0
+crossed_rings_count = 0
 
 # Enable depth testing
 glEnable(GL_DEPTH_TEST)
 
 # Initialize time variables for delta_time calculation
 last_time = glfw.get_time()
+start_time = time.time()
+limit_time = 60
 
 # Render loop
 while not glfw.window_should_close(window):
@@ -114,6 +88,26 @@ while not glfw.window_should_close(window):
     current_time = glfw.get_time()
     delta_time = current_time - last_time
     last_time = current_time
+
+    # Calculate elapsed time
+    elapsed_time = time.time() - start_time
+
+    # Check if timeout is reached
+    if elapsed_time >= limit_time:
+        # Reset camera position
+        camera_instance.position = glm.vec3(0, 0, 0)
+        camera_instance.rotation = glm.vec3(0, glm.radians(-90), 0)
+        camera_instance.update_view_matrix()
+
+        # Reset all rings' was_crossed variable
+        for gold_ring_instance in gold_ring_instances:
+            gold_ring_instance.was_crossed = False
+        
+        # Reset count
+        crossed_rings_count = 0
+
+        # Reset the timer
+        start_time = time.time()
 
     # Clear screen
     glClearColor(0.0, 0.0, 0.0, 1.0)  # Black background
@@ -131,11 +125,11 @@ while not glfw.window_should_close(window):
     # Draw Scenario 
     scenario_instance.run_loop()
 
-    # # Update Arwing position and rotation to follow the camera
-    # arwing_instance.update_position_and_rotation(camera_instance, delta_time)
+    # Update Arwing position and rotation to follow the camera
+    arwing_instance.update_position_and_rotation(camera_instance, delta_time)
 
-    # # Draw arwing
-    # arwing_instance.run_loop()
+    # Draw arwing
+    arwing_instance.run_loop()
 
     for gold_ring_instance in gold_ring_instances:
         # Draw Gold Ring
@@ -143,20 +137,23 @@ while not glfw.window_should_close(window):
 
         # Check for collision with the Gold Ring
         if gold_ring_instance.check_collision(arwing_instance.position):
-            passed_rings_count += 1
+            crossed_rings_count += 1
 
     # Render skybox
     skybox_instance.draw(camera_instance)
 
     # Render text
     glUseProgram(0)  # Disable shader program to render text
-    camera_pos_text = f"Camera {camera_instance.position.x:.2f},{camera_instance.position.y:.2f},{camera_instance.position.z:.2f}"
-    text_renderer.render_text(camera_pos_text, -0.2, 0.9, 0.5, (1.0, 1.0, 1.0))
-    camera_pos_text = f"Camera Rotation {camera_instance.rotation.x:.2f},{camera_instance.rotation.y:.2f},{camera_instance.rotation.z:.2f}"
-    text_renderer.render_text(camera_pos_text, -0.95, -0.8, 0.5, (1.0, 1.0, 1.0))
-    arwing_pos_text = f"Arwing {arwing_instance.position.x:.2f},{arwing_instance.position.y:.2f},{arwing_instance.position.z:.2f}"
-    text_renderer.render_text(arwing_pos_text, 0, -0.9, 0.5, (1.0, 1.0, 1.0))
-    text_renderer.render_text(f'Rings {passed_rings_count};{len(gold_ring_instances)}', -0.95, 0.9, 0.5, (1.0, 1.0, 1.0))
+    text_renderer.render_text(f'Rings {crossed_rings_count};{len(gold_ring_instances)}', -0.95, 0.9, 0.5, (1.0, 1.0, 1.0))
+    text_renderer.render_text(f'Elapsed time {(limit_time - elapsed_time):.2f}', 0.2, 0.9, 0.5, (1.0, 1.0, 1.0))
+
+    if(DEV_MODE):
+        camera_pos_text = f"Camera {camera_instance.position.x:.2f},{camera_instance.position.y:.2f},{camera_instance.position.z:.2f}"
+        text_renderer.render_text(camera_pos_text, -0.2, 0.9, 0.5, (1.0, 1.0, 1.0))
+        camera_pos_text = f"Camera Rotation {camera_instance.rotation.x:.2f},{camera_instance.rotation.y:.2f},{camera_instance.rotation.z:.2f}"
+        text_renderer.render_text(camera_pos_text, -0.95, -0.8, 0.5, (1.0, 1.0, 1.0))
+        arwing_pos_text = f"Arwing {arwing_instance.position.x:.2f},{arwing_instance.position.y:.2f},{arwing_instance.position.z:.2f}"
+        text_renderer.render_text(arwing_pos_text, 0, -0.9, 0.5, (1.0, 1.0, 1.0))
 
     # Swap buffers and poll events
     glfw.swap_buffers(window)

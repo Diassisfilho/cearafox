@@ -30,7 +30,7 @@ class PlayerCamera:
 
         # Check if space key is pressed for movement speed
         if glfw.get_key(window, glfw.KEY_SPACE) == glfw.PRESS:
-            self.movement_speed = self.base_movement_speed * 2
+            self.movement_speed = self.base_movement_speed * 5
         else:
             self.movement_speed = self.base_movement_speed
 
