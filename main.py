@@ -83,7 +83,6 @@ glEnable(GL_DEPTH_TEST)
 crossed_rings_count = 0
 last_time = glfw.get_time()
 start_time = time.time()
-limit_time = 60
 
 # Render loop
 while not glfw.window_should_close(window):
@@ -97,7 +96,7 @@ while not glfw.window_should_close(window):
 
     if (not DEV_MODE):
         # Check if timeout is reached
-        if elapsed_time >= limit_time:
+        if elapsed_time >= LIMIT_TIME:
             # Reset camera position
             camera_instance.position = glm.vec3(0, 0, 0)
             camera_instance.rotation = glm.vec3(0, glm.radians(-90), 0)
@@ -151,18 +150,28 @@ while not glfw.window_should_close(window):
     skybox_instance.draw(camera_instance)
 
     # Render text
+    normal_text_color = (1.0,1.0,1.0)
+    fatal_text_color = (1.0,0.0,0.0)
+
     if (not DEV_MODE):
         glUseProgram(0)  # Disable shader program to render text
-        text_renderer.render_text(f'Rings {crossed_rings_count};{len(gold_ring_instances)}', -0.95, 0.9, 0.5, (1.0, 1.0, 1.0))
-        text_renderer.render_text(f'Elapsed time {(limit_time - elapsed_time):.2f}', 0.2, 0.9, 0.5, (1.0, 1.0, 1.0))
-        arwing_pos_text = f"Arwing {arwing_instance.position.x:.2f},{arwing_instance.position.y:.2f},{arwing_instance.position.z:.2f}"
-        text_renderer.render_text(arwing_pos_text, 0, -0.9, 0.5, (1.0, 1.0, 1.0))
+        remain_time = LIMIT_TIME - elapsed_time
+        time_text_color = fatal_text_color if remain_time <= 10 else normal_text_color
+        text_renderer.render_text(f'Rings {crossed_rings_count};{len(gold_ring_instances)}', -0.95, 0.9, 0.5, normal_text_color)
+        text_renderer.render_text(f'Elapsed time {remain_time:.2f}', 0.2, 0.9, 0.5, time_text_color)
+        text_renderer.render_text("WASD to Moviment", -0.95, -0.7, 0.5, normal_text_color)
+        text_renderer.render_text("Space to Boost", -0.95, -0.8, 0.5, normal_text_color)
+        text_renderer.render_text("Shift to Drift", -0.95, -0.9, 0.5, normal_text_color)
     elif (DEV_MODE):
         glUseProgram(0)  # Disable shader program to render text
         camera_pos_text = f"Camera {camera_instance.position.x:.2f},{camera_instance.position.y:.2f},{camera_instance.position.z:.2f}"
-        text_renderer.render_text(camera_pos_text, -0.2, 0.9, 0.5, (1.0, 1.0, 1.0))
+        text_renderer.render_text(camera_pos_text, -0.95, 0.9, 0.5, normal_text_color)
         camera_pos_text = f"Camera Rotation {camera_instance.rotation.x:.2f},{camera_instance.rotation.y:.2f},{camera_instance.rotation.z:.2f}"
-        text_renderer.render_text(camera_pos_text, -0.95, -0.8, 0.5, (1.0, 1.0, 1.0))
+        text_renderer.render_text(camera_pos_text, -0.95, -0.9, 0.5, normal_text_color)
+        text_renderer.render_text("WASD to Moviment", -0.95, -0.5, 0.5, normal_text_color)
+        text_renderer.render_text("Mouse to See Around", -0.95, -0.6, 0.5, normal_text_color)
+        text_renderer.render_text("Shift Go Down", -0.95, -0.7, 0.5, normal_text_color)
+        text_renderer.render_text("Space Go Up", -0.95, -0.8, 0.5, normal_text_color)
 
     # Swap buffers and poll events
     glfw.swap_buffers(window)
