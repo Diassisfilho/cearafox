@@ -1,3 +1,4 @@
+import random
 import glm
 from models import model_position
 from OpenGL.GL import *
@@ -23,8 +24,8 @@ class Castle:
 class GoldRing:
     def __init__(self, model_instance):
         self.model_instance = model_instance
-        self.position = glm.vec3(0.0, 0.0, -10.0)
-        self.rotation_angle = 0.0  # Initialize rotation angle
+        self.position = glm.vec3(0.0, 0.0, 0.0)
+        self.rotation_angle = float(random.randint(0,360))  # Initialize rotation angle
         self.was_crossed = False
         self.collision_radius = 2.0  # Adjust based on the ring's size
         self.initial_state()
@@ -33,6 +34,18 @@ class GoldRing:
         self.model_instance.model = glm.mat4(1.0)
         self.model_instance.model = glm.translate(self.model_instance.model, self.position)
     
+    def update_position_and_rotation(self, position, rotation):
+        self.position = position
+        self.rotation = rotation
+        self.update_model_matrix()
+
+    def update_model_matrix(self):
+        self.model_instance.model = glm.mat4(1.0)
+        self.model_instance.model = glm.translate(self.model_instance.model, self.position)
+        self.model_instance.model = glm.rotate(self.model_instance.model, glm.radians(self.rotation[0]), glm.vec3(1, 0, 0))
+        self.model_instance.model = glm.rotate(self.model_instance.model, glm.radians(self.rotation[1]), glm.vec3(0, 1, 0))
+        self.model_instance.model = glm.rotate(self.model_instance.model, glm.radians(self.rotation[2]), glm.vec3(0, 0, 1))
+
     def run_loop(self):
         # Increment the rotation angle
         self.rotation_angle += glm.radians(1)  # Adjust the rotation speed as needed

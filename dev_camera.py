@@ -17,7 +17,7 @@ class DevCamera:
         self.update_view_matrix()  # Initialize the view matrix
 
     def process_input(self, window):
-        movement_speed = 0.1
+        movement_speed = 0.4
         if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
             self.position += self.front * movement_speed
         if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
@@ -77,3 +77,11 @@ class DevCamera:
         glUniformMatrix4fv(glGetUniformLocation(self.shader_program, 'view'), 1, GL_FALSE, glm.value_ptr(self.view))
         glUniformMatrix4fv(glGetUniformLocation(self.shader_program, 'projection'), 1, GL_FALSE, glm.value_ptr(self.projection))
         glUniform3fv(glGetUniformLocation(self.shader_program, 'viewPos'), 1, glm.value_ptr(self.position))
+
+def setup_mouse_movimentation(camera_instance, window):
+    # Setup mouse callback
+    def mouse_callback(window, xpos, ypos):
+        camera_instance.process_mouse_movement(xpos, ypos)
+
+    glfw.set_cursor_pos_callback(window, mouse_callback)
+    glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
